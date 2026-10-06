@@ -68,3 +68,42 @@ describe("register", () => {
     ).rejects.toThrow("USERNAME_ALREADY_EXISTS");
   });
 });
+
+describe("login", () => {
+  beforeEach(async () => {
+    await cleanupDatabase();
+  });
+
+  test("can login", async () => {
+    await authService.register("Thomas", "azertyui", "azertyui");
+
+    const result = await authService.login("Thomas", "azertyui");
+    expect(result).toHaveProperty("username", "Thomas");
+  });
+
+  test("throws error when credentials are invalid", async () => {
+    await authService.register("Thomas", "azertyui", "azertyui");
+
+    await expect(
+      authService.login("Thomas", "wrongpassword123456"),
+    ).rejects.toThrow("INVALID_CREDENTIALS");
+  });
+
+  test("throws error when missing username", async () => {
+    await expect(authService.login("", "azertyui")).rejects.toThrow(
+      "MISSING_USERNAME",
+    );
+  });
+
+  test("throws error when missing password", async () => {
+    await expect(authService.login("Thomas", "")).rejects.toThrow(
+      "MISSING_PASSWORD",
+    );
+  });
+
+  test("throws error when user not found", async () => {
+    await expect(authService.login("Unknown", "azertyui")).rejects.toThrow(
+      "INVALID_CREDENTIALS",
+    );
+  });
+});
