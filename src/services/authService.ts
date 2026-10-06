@@ -42,4 +42,28 @@ async function register(
   return user;
 }
 
-export default { register };
+async function login(username: string, password: string) {
+  if (!username) {
+    throw new Error("MISSING_USERNAME");
+  }
+
+  if (!password) {
+    throw new Error("MISSING_PASSWORD");
+  }
+
+  const user = await queries.findUserByUsername(username);
+
+  if (!user) {
+    throw new Error("INVALID_CREDENTIALS");
+  }
+
+  const match = await bcrypt.compare(password, user.password);
+
+  if (!match) {
+    throw new Error("INVALID_CREDENTIALS");
+  }
+
+  return user;
+}
+
+export default { register, login };
